@@ -1,24 +1,33 @@
-import logo from './logo.svg';
 import './App.css';
+import React, {useEffect, useState} from "react";
+import ToDos from './ToDos';
+
 
 function App() {
+  const [users, setUsers] = useState([]);
+
+
+  useEffect(() => {
+    const abortControl = new AbortController();
+
+    const loadUsers = async () => {
+      const response = await fetch("https://jsonplaceholder.typicode.com/users?userId=1", {signal: abortControl.signal});
+      const userFromAPI = await response.json();
+      setUsers(userFromAPI);
+    };
+
+    loadUsers();
+
+    return () => {
+      abortControl.abort();
+    }
+  }, []);
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      {users.map((user, index) => ( <ToDos  key={index} name={user.name} userId={user.id}  />))}
     </div>
+
   );
 }
 
